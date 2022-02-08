@@ -21,12 +21,13 @@
 Exports a conda dependency graph into Neo4j Aura
 """
 
+import itertools
 import json
 import os
 import subprocess
 import tqdm
 from neo4j import GraphDatabase, Transaction
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Set, Tuple
 
 
 class Neo4jAuraDb:
@@ -69,14 +70,21 @@ def _get_current_deps() -> Dict[Any, Any]:
     return _parse_linked_data(deps)
 
 
+def _extract_root_packages(deps: Dict[str, Any]) -> Set[str]:
+    pkgs = itertools.chain.from_iterable(map(lambda p: map(lambda dp: dp[0], p[1]), deps.values()))
+    return set(deps.keys()) - set(pkgs)
+
+
 def _build_cypher_queries_from(deps: Dict[str, Any]) -> List[str]:
+    root_packages = _extract_root_packages(deps)
     create_stmts = []
     for pkg, (version, _) in deps.items():
-        create_stmts.append(f"CREATE (n:Package {{name:'{pkg}', version:'{version}'}});")
+        node_label = "RootPackage" if pkg in root_packages else "Package"
+        create_stmts.append(f"CREATE (n:{node_label} {{name:'{pkg}', version:'{version}'}});")
 
     for pkg, (_, lst) in deps.items():
         for rpkg, required in lst:
-            create_stmts.append(f"MATCH (src:Package), (dst:Package) WHERE src.name = '{pkg}' AND dst.name = '{rpkg}' "
+            create_stmts.append(f"MATCH (src), (dst:Package) WHERE src.name = '{pkg}' AND dst.name = '{rpkg}' "
                                 f"CREATE (src)-[:provided {{required:'{''.join(required)}'}}]->(dst);")
 
     return create_stmts
