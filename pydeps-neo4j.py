@@ -73,7 +73,11 @@ def _parse_linked_data(data: Dict[Any, Any]) -> Any:
 
 
 def _get_conda_deps(conda_env_prefix: str) -> Dict[str, Any]:
-    import conda.exports
+    try:
+        import conda.exports
+    except ImportError:
+        raise RuntimeError('You need to install conda first')
+
     deps = conda.exports.linked_data(prefix=conda_env_prefix)
     if not deps:
         raise ValueError(f"No dependency found in conda env prefix '{conda_env_prefix}'")

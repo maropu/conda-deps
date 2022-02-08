@@ -16,7 +16,7 @@ For instance, the dependent packages of [spark-data-repair-plugin](https://githu
 <p align="center"><img src="resources/spark-data-repair-plugin-neo4jaura.svg" width="700px"></p>
 
 `pydeps-neo4j.py` uses the internal API of `pip` by default.
-If one would like to export dependencies in a conda environment, you can use an option `--conda-env-prefix` instead:
+If one would like to export dependencies for a conda environment, you can use an option `--conda-env-prefix` instead:
 
 ```
 ./pydeps-neo4j.py --conda-env-prefix <conda env path> <the Neo4j options given above>
