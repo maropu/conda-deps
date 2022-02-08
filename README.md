@@ -1,19 +1,26 @@
-[![License](http://img.shields.io/:license-Apache_v2-blue.svg)](https://github.com/maropu/pydeps/blob/master/LICENSE)
+[![License](http://img.shields.io/:license-Apache_v2-blue.svg)](https://github.com/maropu/pydeps-neo4j/blob/master/LICENSE)
 
-This repository is to analyze Python package dependencies.
+This repository is to analyze Python package dependencies in Neo4j.
 
-## Exports Conda Package Dependencies into Neo4j
+## Exports Python Package Dependencies into Neo4j
 
-To analyze the package dependencies of a current active conda environment, it is useful to export them
+To analyze package dependencies in a Python environment, it is useful to export them
 into [Neo4j Aura](https://neo4j.com/cloud/aura), a fully-managed graph dtabase service:
 
 ```
-./export-pydeps-into-neo4jaura.py --uri neo4j+s://<your Neo4j database uri> --user <user name> --password <password>
+./pydeps-neo4j.py --uri neo4j+s://<your Neo4j database uri> --user <user name> --password <password>
 ```
 
 For instance, the dependent packages of [spark-data-repair-plugin](https://github.com/maropu/spark-data-repair-plugin) are shown as follows:
 
 <p align="center"><img src="resources/spark-data-repair-plugin-neo4jaura.svg" width="700px"></p>
+
+`pydeps-neo4j.py` uses the internal API of `pip` by default.
+If one would like to export dependencies in a conda environment, you can use an option `--conda-env-prefix` instead:
+
+```
+./pydeps-neo4j.py --conda-env-prefix <conda env path> <the Neo4j options given above>
+```
 
 ### List of Useful CYPHER Queries to Analyze Dependencies
 
@@ -51,16 +58,15 @@ RETURN path
 
 ```
 MATCH (p1)-[t:provided]->(p2:Package)
-WITH p2, count(p1) AS num_deps, collect(distinct t.required) AS required
+WITH p2, count(p1) AS num_deps, apoc.coll.toSet(apoc.coll.flatten(collect(distinct t.requires))) AS requires
 WHERE num_deps >=2
-RETURN p2, num_deps, required
+RETURN p2, num_deps, requires
 ORDER BY num_deps DESC
 ```
 
 ## TODO
 
  * Adds more useful CYPHER queries in the list above
- * Support other Python package management tools (e.g., pip)
 
 ## Bug Reports
 
