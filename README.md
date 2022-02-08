@@ -8,7 +8,7 @@ To analyze the package dependencies of a current active conda environment, it is
 into [Neo4j Aura](https://neo4j.com/cloud/aura), a fully-managed graph dtabase service:
 
 ```
-./export-conda-deps-into-neo4jaura.py --uri neo4j+s://<your Neo4j database uri> --user <user name> --password <password>
+./export-pydeps-into-neo4jaura.py --uri neo4j+s://<your Neo4j database uri> --user <user name> --password <password>
 ```
 
 For instance, the dependent packages of [spark-data-repair-plugin](https://github.com/maropu/spark-data-repair-plugin) are shown as follows:
