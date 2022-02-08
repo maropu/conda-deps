@@ -2,7 +2,7 @@
 
 This repository is to analyze conda package dependencies.
 
-## Exports conda package dependencies into Neo4j
+## Exports Conda Package Dependencies into Neo4j
 
 To analyze the package dependencies of a current active conda environment, it is useful to export them
 into [Neo4j Aura](https://neo4j.com/cloud/aura), a fully-managed graph dtabase service:
@@ -17,10 +17,40 @@ For instance, the dependent packages of [spark-data-repair-plugin](https://githu
 
 ### List of Useful CYPHER Queries to Analyze Dependencies
 
-#### Selects Dependent Packages Required by Two or More Packages
+#### Packages that No Other Package Depends on
 
 ```
-MATCH (p1:Package)-[t:provided]->(p2:Package)
+MATCH (p:RootPackage) RETURN p
+```
+
+#### Dependencies of a Specific Package
+
+```
+MATCH path=(p)-[*]->(:Package)
+WHERE p.name = 'py4j'
+RETURN path
+```
+
+#### Which Packages Depend on a Specific Package
+
+```
+MATCH path=()-[*]->(p:Package)
+WHERE p.name = 'py4j'
+RETURN path
+```
+
+#### Cyclic Dependencies
+
+```
+MATCH path=(p1)-[*1..]->(p2)
+WHERE p1.name = p2.name
+RETURN path
+```
+
+#### Packages Required by Two or More Packages
+
+```
+MATCH (p1)-[t:provided]->(p2:Package)
 WITH p2, count(p1) AS num_deps, collect(distinct t.required) AS required
 WHERE num_deps >=2
 RETURN p2, num_deps, required
@@ -30,6 +60,7 @@ ORDER BY num_deps DESC
 ## TODO
 
  * Adds more useful CYPHER queries in the list above
+ * Support other Python package management tools (e.g., pip)
 
 ## Bug Reports
 
