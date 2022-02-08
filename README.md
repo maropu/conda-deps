@@ -1,6 +1,6 @@
-[![License](http://img.shields.io/:license-Apache_v2-blue.svg)](https://github.com/maropu/conda-deps/blob/master/LICENSE)
+[![License](http://img.shields.io/:license-Apache_v2-blue.svg)](https://github.com/maropu/pydeps/blob/master/LICENSE)
 
-This repository is to analyze conda package dependencies.
+This repository is to analyze Python package dependencies.
 
 ## Exports Conda Package Dependencies into Neo4j
 
